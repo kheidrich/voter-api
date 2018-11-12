@@ -97,10 +97,12 @@ public class VoterService {
     }
 
     private void validateInput(VoterInput voterInput, boolean isUpdate){
-        if (StringUtils.isBlank(voterInput.getEmail())){
+        if (StringUtils.isBlank(voterInput.getEmail()) || !validateEmail(voterInput.getEmail())){
             throw new GenericOutputException("Invalid email");
         }
-        if (StringUtils.isBlank(voterInput.getName())){
+        if (StringUtils.isBlank(voterInput.getName())
+                || voterInput.getName().length() < 5
+                || voterInput.getName().split(" ").length < 2){
             throw new GenericOutputException("Invalid name");
         }
         if (!StringUtils.isBlank(voterInput.getPassword())){
@@ -112,6 +114,18 @@ public class VoterService {
                 throw new GenericOutputException("Password doesn't match");
             }
         }
+    }
+
+    public boolean validateEmail(String email) {
+        Type partyOutputListType = new TypeToken<List<Voter>>() {
+        }.getType();
+
+        List<Voter> parties = modelMapper.map(voterRepository.findAll(), partyOutputListType);
+        for (Voter party : parties)
+            if (party.getEmail().equals(email))
+                return false;
+
+        return true;
     }
 
 }
