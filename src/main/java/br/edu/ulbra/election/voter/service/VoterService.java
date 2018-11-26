@@ -3,6 +3,7 @@ package br.edu.ulbra.election.voter.service;
 import br.edu.ulbra.election.voter.exception.GenericOutputException;
 import br.edu.ulbra.election.voter.input.v1.VoterInput;
 import br.edu.ulbra.election.voter.model.Voter;
+import br.edu.ulbra.election.voter.output.v1.ElectionOutput;
 import br.edu.ulbra.election.voter.output.v1.GenericOutput;
 import br.edu.ulbra.election.voter.output.v1.VoterOutput;
 import br.edu.ulbra.election.voter.repository.VoterRepository;
@@ -25,14 +26,18 @@ public class VoterService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final ElectionClientService electionClientService;
+
+
     private static final String MESSAGE_INVALID_ID = "Invalid id";
     private static final String MESSAGE_VOTER_NOT_FOUND = "Voter not found";
 
     @Autowired
-    public VoterService(VoterRepository voterRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder){
+    public VoterService(VoterRepository voterRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder, ElectionClientService electionClientService){
         this.voterRepository = voterRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
+        this.electionClientService = electionClientService;
     }
 
     public List<VoterOutput> getAll(){
@@ -91,9 +96,12 @@ public class VoterService {
             throw new GenericOutputException(MESSAGE_VOTER_NOT_FOUND);
         }
 
-        voterRepository.delete(voter);
-
-        return new GenericOutput("Voter deleted");
+        if(voterHasVote(voterId)) {
+            throw new GenericOutputException("Voter has vote");
+        }else {
+            voterRepository.delete(voter);
+            return new GenericOutput("Voter deleted");
+        }
     }
 
     private void validateInput(VoterInput voterInput, boolean isUpdate){
@@ -126,6 +134,12 @@ public class VoterService {
                 return false;
 
         return true;
+    }
+
+    public boolean voterHasVote(Long voterId){
+        List<ElectionOutput> elections = this.electionClientService.getVoterId(voterId);
+
+        return elections.size() > 0;
     }
 
 }
