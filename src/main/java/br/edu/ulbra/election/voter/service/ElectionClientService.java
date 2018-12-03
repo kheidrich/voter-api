@@ -1,6 +1,6 @@
 package br.edu.ulbra.election.voter.service;
 
-import br.edu.ulbra.election.voter.Client.ElectionClient;
+import br.edu.ulbra.election.voter.client.ElectionClient;
 import br.edu.ulbra.election.voter.output.v1.ElectionOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
