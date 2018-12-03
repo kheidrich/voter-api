@@ -1,4 +1,4 @@
-package br.edu.ulbra.election.voter.Client;
+package br.edu.ulbra.election.voter.client;
 
 import br.edu.ulbra.election.voter.output.v1.ElectionOutput;
 import org.springframework.cloud.openfeign.FeignClient;
